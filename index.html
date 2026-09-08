@@ -1,20 +1,1568 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NEONPAD</title>
-    <meta name="description" content="A cyberpunk notebook for writing, ideas and tasks." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NEXUS//2077</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;600;700;800&display=swap');
+
+:root {
+    --bg: #030711;
+    --panel: #0a1222;
+    --panel2: #0d172a;
+    --cyan: #00eaff;
+    --cyan2: #00bcd4;
+    --pink: #ff1493;
+    --yellow: #ffe600;
+    --green: #39ff14;
+    --purple: #9b5cff;
+    --text: #edf5ff;
+    --muted: #6d7c94;
+    --border: rgba(0,234,255,.18);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background:
+        radial-gradient(circle at 75% 10%, rgba(120,0,255,.08), transparent 30%),
+        radial-gradient(circle at 30% 40%, rgba(0,220,255,.06), transparent 35%),
+        var(--bg);
+    color: var(--text);
+    font-family: Inter, sans-serif;
+    min-height: 100vh;
+}
+
+/* ================= SIDEBAR ================= */
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 228px;
+    background: rgba(3,9,20,.95);
+    border-right: 1px solid rgba(0,234,255,.08);
+    padding: 25px 15px;
+    z-index: 100;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+.logo-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--cyan);
+    color: #001016;
+    font-size: 21px;
+    font-weight: 900;
+    box-shadow: 0 0 25px rgba(0,234,255,.5);
+}
+
+.logo h2 {
+    font-family: Orbitron;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.logo small {
+    display: block;
+    color: #68758b;
+    font-size: 9px;
+    margin-top: 3px;
+    letter-spacing: 1px;
+}
+
+.nav-title {
+    color: #65738a;
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin: 0 8px 12px;
+}
+
+.nav-item {
+    height: 45px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 0 12px;
+    margin-bottom: 5px;
+    border-radius: 12px;
+    color: #8190a5;
+    cursor: pointer;
+    transition: .2s;
+    font-size: 13px;
+}
+
+.nav-item:hover {
+    background: rgba(0,234,255,.06);
+    color: white;
+}
+
+.nav-item.active {
+    background: linear-gradient(90deg,
+        rgba(0,234,255,.13),
+        rgba(20,50,90,.12));
+    color: white;
+    border: 1px solid rgba(0,234,255,.2);
+    box-shadow: inset 3px 0 var(--cyan);
+}
+
+.nav-icon {
+    font-size: 18px;
+}
+
+.dot {
+    margin-left: auto;
+    width: 5px;
+    height: 5px;
+    background: var(--cyan);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--cyan);
+}
+
+/* SYSTEM CARD */
+
+.system-card {
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    bottom: 48px;
+    border: 1px solid rgba(0,234,255,.13);
+    border-radius: 14px;
+    padding: 17px 13px;
+    background: rgba(8,20,34,.8);
+}
+
+.system-online {
+    color: var(--green);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.system-card p {
+    font-family: monospace;
+    color: #6c7a8e;
+    font-size: 9px;
+    line-height: 1.8;
+}
+
+.progress {
+    height: 3px;
+    background: #152234;
+    margin-top: 12px;
+}
+
+.progress div {
+    height: 100%;
+    width: 82%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+}
+
+/* ================= MAIN ================= */
+
+.main {
+    margin-left: 228px;
+    min-height: 100vh;
+}
+
+.topbar {
+    height: 68px;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+}
+
+.live {
+    color: var(--cyan);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.live::before {
+    content: "";
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
+    margin-right: 8px;
+}
+
+.user-info {
+    color: #657187;
+    font-family: monospace;
+    font-size: 9px;
+}
+
+.page {
+    display: none;
+    padding: 45px 52px;
+    animation: fade .25s ease;
+}
+
+.page.active {
+    display: block;
+}
+
+@keyframes fade {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+    color: var(--cyan);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-bottom: 13px;
+}
+
+.page h1 {
+    font-family: Orbitron;
+    font-size: clamp(34px,4vw,54px);
+    letter-spacing: 1px;
+    margin-bottom: 13px;
+}
+
+.subtitle {
+    color: #7f8da3;
+    font-size: 14px;
+    max-width: 800px;
+    line-height: 1.7;
+    margin-bottom: 35px;
+}
+
+/* ================= PANELS ================= */
+
+.panel {
+    background:
+        linear-gradient(135deg,
+        rgba(10,24,43,.9),
+        rgba(6,12,26,.94));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, transparent 49%, rgba(0,234,255,.015) 50%, transparent 51%);
+}
+
+.panel-title {
+    color: var(--cyan);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+}
+
+/* ================= COMMAND DECK ================= */
+
+.hero {
+    min-height: 445px;
+    padding: 45px;
+    display: flex;
+    align-items: center;
+    background:
+        linear-gradient(90deg,
+            rgba(4,13,27,.97) 15%,
+            rgba(4,13,27,.88) 50%,
+            rgba(4,13,27,.45)),
+        radial-gradient(circle at 80% 50%, #742b13, transparent 38%);
+}
+
+.hero-content {
+    max-width: 610px;
+    z-index: 2;
+}
+
+.hero h2 {
+    font-size: 39px;
+    line-height: 1.15;
+    margin-bottom: 25px;
+}
+
+.hero h2 span {
+    color: var(--cyan);
+}
+
+.hero p {
+    color: #7c899c;
+    line-height: 1.8;
+    font-size: 13px;
+}
+
+.button {
+    border: none;
+    padding: 14px 22px;
+    font-family: Orbitron;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    color: #001016;
+    background: var(--cyan);
+    box-shadow: 0 0 20px rgba(0,234,255,.25);
+    transition: .2s;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 30px rgba(0,234,255,.5);
+}
+
+.button.pink {
+    background: var(--pink);
+    color: white;
+}
+
+.button.yellow {
+    background: var(--yellow);
+}
+
+.modules {
+    display: grid;
+    grid-template-columns: repeat(5,1fr);
+    gap: 14px;
+    margin-top: 30px;
+}
+
+.module {
+    min-height: 205px;
+    padding: 22px 17px;
+    border-radius: 18px;
+    background: #091326;
+    border: 1px solid rgba(255,255,255,.06);
+    cursor: pointer;
+    transition: .25s;
+}
+
+.module:hover {
+    transform: translateY(-5px);
+    border-color: var(--cyan);
+    box-shadow: 0 0 25px rgba(0,234,255,.1);
+}
+
+.module-icon {
+    font-size: 22px;
+    margin-bottom: 28px;
+}
+
+.module h3 {
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.module p {
+    font-size: 10px;
+    color: #68778d;
+    line-height: 1.6;
+}
+
+/* ================= NOTEBOOK ================= */
+
+.notebook-layout {
+    display: grid;
+    grid-template-columns: 1fr 310px;
+    gap: 20px;
+}
+
+.editor {
+    padding: 25px;
+}
+
+.editor-header {
+    display: flex;
+    justify-content: space-between;
+    color: var(--cyan);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 2px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+}
+
+.autosave {
+    color: var(--green);
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    background: rgba(2,8,19,.7);
+    border: 1px solid rgba(0,234,255,.14);
+    color: white;
+    outline: none;
+    font-family: Inter;
+}
+
+.title-input {
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 700;
+    margin: 25px 0 18px;
+}
+
+.tags {
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--cyan);
+    margin-bottom: 18px;
+}
+
+textarea {
+    min-height: 300px;
+    resize: vertical;
+    padding: 18px;
+    line-height: 1.8;
+    font-size: 13px;
+    border-radius: 12px;
+}
+
+.editor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+.vault {
+    padding: 25px;
+    min-height: 490px;
+}
+
+.vault h2 {
+    margin-bottom: 35px;
+}
+
+.empty {
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #58677d;
+    font-size: 12px;
+}
+
+/* ================= IDEA LAB ================= */
+
+.idea-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.idea-panel {
+    padding: 25px;
+    min-height: 400px;
+}
+
+.protocols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.protocol {
+    padding: 9px 13px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 20px;
+    color: #748299;
+    font-size: 10px;
+    cursor: pointer;
+}
+
+.protocol.selected {
+    color: var(--pink);
+    border-color: var(--pink);
+    box-shadow: 0 0 12px rgba(255,20,147,.15);
+}
+
+.signal-input {
+    min-height: 80px;
+    margin-bottom: 20px;
+    padding: 16px;
+    border-radius: 10px;
+}
+
+.output {
+    display: flex;
+    flex-direction: column;
+}
+
+.output-box {
+    flex: 1;
+    padding: 20px;
+    color: #dfe9f5;
+    line-height: 1.8;
+}
+
+.generated {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid rgba(255,20,147,.25);
+    border-radius: 12px;
+    background: rgba(255,20,147,.04);
+}
+
+/* ================= MISSIONS ================= */
+
+.xp-panel {
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.xp-number {
+    font-size: 32px;
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+.xp-bar {
+    height: 5px;
+    background: #182438;
+}
+
+.xp-bar div {
+    width: 25%;
+    height: 100%;
+    background: var(--yellow);
+}
+
+.mission-controls {
+    padding: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.mission-controls input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 8px;
+}
+
+.mission {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-top: 1px solid rgba(255,255,255,.05);
+    color: #cbd6e5;
+}
+
+.mission button {
+    background: none;
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+/* ================= PROJECTS ================= */
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.projects-list {
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 15px;
+}
+
+.project-card {
+    min-height: 160px;
+    padding: 22px;
+    border-radius: 15px;
+    background: #091326;
+    border: 1px solid rgba(255,255,255,.06);
+}
+
+.project-card h3 {
+    margin-bottom: 12px;
+}
+
+.project-card p {
+    color: #68768b;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+/* ================= ROOMS ================= */
+
+.room {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 430px;
+}
+
+.room-info {
+    padding: 55px;
+    background:
+        radial-gradient(circle at 30% 40%, rgba(0,234,255,.12), transparent 40%),
+        rgba(10,27,48,.8);
+}
+
+.room-info h2 {
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 25px 0;
+}
+
+.room-info span {
+    color: var(--cyan);
+}
+
+.room-info p {
+    color: #728198;
+    line-height: 1.7;
+    font-size: 12px;
+}
+
+.room-form {
+    padding: 50px 40px;
+}
+
+.form-label {
+    color: var(--cyan);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 1px;
+    margin: 15px 0 8px;
+    display: block;
+}
+
+.room-form input {
+    padding: 14px;
+    border-radius: 7px;
+}
+
+.full-button {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:1000px) {
+    .sidebar {
+        width: 75px;
+        padding: 20px 10px;
+    }
+
+    .logo h2,
+    .logo small,
+    .nav-title,
+    .nav-item span,
+    .system-card {
+        display: none;
+    }
+
+    .logo {
+        justify-content: center;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 0;
+    }
+
+    .main {
+        margin-left: 75px;
+    }
+
+    .modules {
+        grid-template-columns: repeat(2,1fr);
+    }
+
+    .notebook-layout,
+    .idea-layout,
+    .room {
+        grid-template-columns: 1fr;
+    }
+
+    .projects-list {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media(max-width:650px) {
+    .page {
+        padding: 30px 18px;
+    }
+
+    .topbar {
+        padding: 0 18px;
+    }
+
+    .modules,
+    .projects-list {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: 30px;
+    }
+
+    .hero h2 {
+        font-size: 30px;
+    }
+
+    .room-info,
+    .room-form {
+        padding: 30px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+
+<aside class="sidebar">
+
+    <div class="logo">
+        <div class="logo-icon">ϟ</div>
+        <div>
+            <h2>NEXUS//2077</h2>
+            <small>creative operating system</small>
+        </div>
+    </div>
+
+    <div class="nav-title">NAVIGATION / UPLINK</div>
+
+    <div class="nav-item active" data-page="command">
+        <div class="nav-icon">⌂</div>
+        <span>Command deck</span>
+        <div class="dot"></div>
+    </div>
+
+    <div class="nav-item" data-page="notebook">
+        <div class="nav-icon">♧</div>
+        <span>Neural notebook</span>
+        <div class="dot"></div>
+    </div>
+
+    <div class="nav-item" data-page="ideas">
+        <div class="nav-icon">♧</div>
+        <span>Idea matrix lab</span>
+        <div class="dot"></div>
+    </div>
+
+    <div class="nav-item" data-page="missions">
+        <div class="nav-icon">☑</div>
+        <span>Mission log</span>
+        <div class="dot"></div>
+    </div>
+
+    <div class="nav-item" data-page="projects">
+        <div class="nav-icon">▣</div>
+        <span>Projects hub</span>
+        <div class="dot"></div>
+    </div>
+
+    <div class="nav-item" data-page="rooms">
+        <div class="nav-icon">♧</div>
+        <span>Shared rooms</span>
+        <div class="dot"></div>
+    </div>
+
+    <div class="system-card">
+        <div class="system-online">● SYSTEM ONLINE</div>
+        <p>Local memory vault armed.</p>
+        <p>No identity handshake required.</p>
+
+        <div class="progress">
+            <div></div>
+        </div>
+
+        <p style="text-align:right;margin-top:5px">SYNC &nbsp;82%</p>
+    </div>
+
+</aside>
+
+
+<!-- ================= MAIN ================= -->
+
+<main class="main">
+
+<header class="topbar">
+    <div class="live">LIVE UPLINK</div>
+    <div class="user-info">UTC 11:38:08 &nbsp; | &nbsp; GUEST // PILOT-07</div>
+</header>
+
+
+<!-- ================= COMMAND ================= -->
+
+<section class="page active" id="command">
+
+    <div class="eyebrow">NEXUS OPERATING SYSTEM / COMMAND DECK</div>
+
+    <h1>MAKE THE IMPOSSIBLE LEGIBLE.</h1>
+
+    <p class="subtitle">
+        A private creative cockpit for turning raw voltage into notes,
+        missions, builds, and shared realities.
+    </p>
+
+    <div class="panel hero">
+
+        <div class="hero-content">
+
+            <div class="panel-title">⚡ PERSONAL CREATIVE OS</div>
+
+            <h2>
+                Ideas are signals.<br>
+                <span>Catch the ones with voltage.</span>
+            </h2>
+
+            <p>
+                NEXUS keeps the messy middle visible — from first thought
+                to finished artifact. No feeds. No noise. Just your next move.
+            </p>
+
+            <br><br>
+
+            <button class="button" onclick="showPage('notebook')">
+                OPEN THE NOTEBOOK ↗
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="eyebrow" style="margin-top:45px">
+        SYSTEM MODULES / READY
+    </div>
+
+    <h2 style="font-size:25px">CHOOSE YOUR NEXT LANE.</h2>
+
+    <div class="modules">
+
+        <div class="module" onclick="showPage('notebook')">
+            <div class="module-icon">▧</div>
+            <h3>Neural notebook</h3>
+            <p>
+                Write without friction. Your local memory vault keeps
+                every spark close.
+            </p>
+        </div>
+
+        <div class="module" onclick="showPage('ideas')">
+            <div class="module-icon">♧</div>
+            <h3>Idea matrix lab</h3>
+            <p>
+                Feed a prompt into the neural uplink and mutate it
+                into a launchable concept.
+            </p>
+        </div>
+
+        <div class="module" onclick="showPage('missions')">
+            <div class="module-icon">☑</div>
+            <h3>Mission log</h3>
+            <p>
+                Turn intention into ranked missions, XP, and forward motion.
+            </p>
+        </div>
+
+        <div class="module" onclick="showPage('projects')">
+            <div class="module-icon">▣</div>
+            <h3>Projects hub</h3>
+            <p>
+                Track the builds that deserve a dedicated lane on your timeline.
+            </p>
+        </div>
+
+        <div class="module" onclick="showPage('rooms')">
+            <div class="module-icon">♧</div>
+            <h3>Shared rooms</h3>
+            <p>
+                Open a room, invite a crew, and co-author in a live
+                backend-backed canvas.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= NOTEBOOK ================= -->
+
+<section class="page" id="notebook">
+
+    <div class="eyebrow">01 / CAPTURE / LOCAL MEMORY VAULT</div>
+
+    <h1>NEURAL NOTEBOOK</h1>
+
+    <p class="subtitle">
+        A quiet canvas for loud ideas. Everything saves locally to this browser,
+        ready to be remixed later.
+    </p>
+
+    <div class="notebook-layout">
+
+        <div class="panel editor">
+
+            <div class="editor-header">
+                <span>▧ TRANSMISSION EDITOR</span>
+                <span class="autosave">● AUTOSAVE ARMED</span>
+            </div>
+
+            <input
+                id="noteTitle"
+                class="title-input"
+                placeholder="Untitled transmission"
+            >
+
+            <input
+                id="noteTags"
+                class="tags"
+                placeholder="# TAGS    thought, draft"
+            >
+
+            <textarea
+                id="noteContent"
+                placeholder="Start writing here. The best ideas rarely arrive polished.
+
+Use this space like a private frequency: fragments, questions, diagrams in words, impossible plans."
+            ></textarea>
+
+            <div class="editor-footer">
+                <small id="charCount">0000 CHARACTERS / LOCAL</small>
+
+                <button class="button" onclick="saveNote()">
+                    ▣ SAVE TRANSMISSION
+                </button>
+            </div>
+
+        </div>
+
+        <div class="panel vault">
+
+            <div class="panel-title">VAULT INDEX</div>
+
+            <h2>Recent transmissions</h2>
+
+            <div id="savedNotes" class="empty">
+                Your first transmission is waiting.<br><br>
+                Save a note to populate the vault.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= IDEA LAB ================= -->
+
+<section class="page" id="ideas">
+
+    <div class="eyebrow">02 / MUTATE / NEURAL UPLINK</div>
+
+    <h1>IDEA MATRIX LAB</h1>
+
+    <p class="subtitle">
+        Give the machine a fragment. Leave with a concept sharp enough
+        to put on a mission board.
+    </p>
+
+    <div class="idea-layout">
+
+        <div class="panel idea-panel">
+
+            <div class="panel-title">♧ AI IDEA GENERATOR</div>
+
+            <small style="color:#69778b">
+                SELECT A CREATIVE PROTOCOL
+            </small>
+
+            <div class="protocols">
+
+                <div class="protocol selected">Street NetRunner</div>
+                <div class="protocol">Bio-Tech</div>
+                <div class="protocol">Space Colony</div>
+                <div class="protocol">Cyber Weapons</div>
+
+            </div>
+
+            <textarea
+                id="ideaInput"
+                class="signal-input"
+                placeholder="Enter your raw signal..."
+            >A small creative project that helps people feel less alone in a crowded city</textarea>
+
+            <button
+                class="button pink"
+                onclick="generateIdea()">
+                ✧ GENERATE SIGNAL
+            </button>
+
+        </div>
+
+        <div class="panel idea-panel output">
+
+            <div class="panel-title">OUTPUT / STREET NETRUNNER</div>
+
+            <h2>Concept payload</h2>
+
+            <div id="ideaOutput" class="output-box">
+                <div class="empty">
+                    Your generated concept will materialize here.<br><br>
+                    Choose a protocol and fire the uplink.
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= MISSIONS ================= -->
+
+<section class="page" id="missions">
+
+    <div class="eyebrow">03 / EXECUTE / MISSION CONTROL</div>
+
+    <h1>MISSION & BOUNTY LOG</h1>
+
+    <p class="subtitle">
+        Small actions are still actions. Rank the next move, collect XP,
+        and keep momentum visible.
+    </p>
+
+    <div class="panel xp-panel">
+
+        <div class="panel-title">⚡ CURRENT XP</div>
+
+        <div class="xp-number" id="xp">0000</div>
+
+        <small style="color:#66758b">
+            NEXT LEVEL // 840 XP
+        </small>
+
+        <div class="xp-bar">
+            <div id="xpBar"></div>
+        </div>
+
+    </div>
+
+    <div class="panel">
+
+        <div class="mission-controls">
+
+            <input
+                id="missionInput"
+                placeholder="Add a new mission..."
+            >
+
+            <button class="button" onclick="addMission()">
+                + ADD MISSION
+            </button>
+
+        </div>
+
+        <div id="missionsList">
+
+            <div class="empty">
+                No missions in this lane.
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= PROJECTS ================= -->
+
+<section class="page" id="projects">
+
+    <div class="eyebrow">04 / SHIP / BUILD NETWORK</div>
+
+    <h1>NEURAL PROJECTS HUB</h1>
+
+    <p class="subtitle">
+        Keep the long arcs visible. Each project is a living signal
+        with a next deployable state.
+    </p>
+
+    <div class="project-header">
+
+        <div class="panel-title">
+            ◉ 00 BUILD CHANNELS / 0 ACTIVE
+        </div>
+
+        <button class="button yellow" onclick="addProject()">
+            + NEW PROJECT
+        </button>
+
+    </div>
+
+    <div id="projectsList" class="projects-list">
+
+    </div>
+
+</section>
+
+
+<!-- ================= ROOMS ================= -->
+
+<section class="page" id="rooms">
+
+    <div class="eyebrow">05 / LINK / MULTIPLAYER UPLINK</div>
+
+    <h1>NETRUNNER SHARED ROOMS</h1>
+
+    <p class="subtitle">
+        Invite a crew into a backend-backed room. Presence, chat,
+        and the shared note refresh across every connected pilot.
+    </p>
+
+    <div class="panel room">
+
+        <div class="room-info">
+
+            <div style="font-size:50px;color:var(--cyan)">
+                ♧
+            </div>
+
+            <div class="eyebrow" style="margin-top:25px">
+                ROOM PROTOCOL / OPEN
+            </div>
+
+            <h2>
+                Create a room.<br>
+                <span>Send the code.</span>
+            </h2>
+
+            <p>
+                No account. No gatekeeping. Just a shared frequency
+                for the people you want in the room.
+            </p>
+
+        </div>
+
+        <div class="room-form">
+
+            <label class="form-label">YOUR CALLSIGN</label>
+
+            <input id="callsign" value="PILOT-07">
+
+            <label class="form-label">ROOM NAME</label>
+
+            <input id="roomName" value="Neon brainstorm room">
+
+            <button
+                class="button full-button"
+                onclick="createRoom()">
+                ◎ OPEN NEW ROOM
+            </button>
+
+            <div style="
+                text-align:center;
+                color:#59677c;
+                font-size:9px;
+                margin:25px 0;">
+                OR JOIN A FREQUENCY
+            </div>
+
+            <input
+                id="roomCode"
+                placeholder="6-digit room code">
+
+            <button
+                class="button pink full-button"
+                onclick="joinRoom()">
+                JOIN ↗
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+</main>
+
+
+<script>
+
+/* ================= NAVIGATION ================= */
+
+const navItems = document.querySelectorAll(".nav-item");
+const pages = document.querySelectorAll(".page");
+
+function showPage(pageName) {
+
+    pages.forEach(page => {
+        page.classList.remove("active");
+    });
+
+    navItems.forEach(item => {
+        item.classList.remove("active");
+    });
+
+    document.getElementById(pageName).classList.add("active");
+
+    document
+        .querySelector(`[data-page="${pageName}"]`)
+        .classList.add("active");
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+}
+
+navItems.forEach(item => {
+
+    item.addEventListener("click", () => {
+        showPage(item.dataset.page);
+    });
+
+});
+
+
+/* ================= NOTEBOOK ================= */
+
+const title = document.getElementById("noteTitle");
+const tags = document.getElementById("noteTags");
+const content = document.getElementById("noteContent");
+const charCount = document.getElementById("charCount");
+
+function updateCount() {
+
+    const count = content.value.length;
+
+    charCount.textContent =
+        String(count).padStart(4,"0") +
+        " CHARACTERS / LOCAL";
+}
+
+content.addEventListener("input", updateCount);
+
+function saveNote() {
+
+    const note = {
+        title: title.value || "Untitled transmission",
+        tags: tags.value || "thought, draft",
+        content: content.value,
+        date: new Date().toLocaleString()
+    };
+
+    localStorage.setItem(
+        "nexusNote",
+        JSON.stringify(note)
+    );
+
+    renderNote();
+
+    alert("TRANSMISSION SAVED.");
+}
+
+function renderNote() {
+
+    const data = localStorage.getItem("nexusNote");
+
+    if(!data) return;
+
+    const note = JSON.parse(data);
+
+    document.getElementById("savedNotes").innerHTML = `
+        <div style="
+            text-align:left;
+            width:100%;
+            border:1px solid rgba(0,234,255,.15);
+            padding:15px;
+            border-radius:10px;
+            background:#091326;">
+
+            <div style="
+                color:#00eaff;
+                font-family:Orbitron;
+                font-size:9px;
+                margin-bottom:8px;">
+                TRANSMISSION
+            </div>
+
+            <strong>${escapeHTML(note.title)}</strong>
+
+            <p style="
+                color:#718096;
+                font-size:10px;
+                margin-top:10px;">
+                ${escapeHTML(note.content).substring(0,120)}
+            </p>
+
+        </div>
+    `;
+}
+
+function escapeHTML(text) {
+
+    return text
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+}
+
+renderNote();
+updateCount();
+
+
+/* ================= IDEA GENERATOR ================= */
+
+document.querySelectorAll(".protocol").forEach(protocol => {
+
+    protocol.addEventListener("click", () => {
+
+        document
+            .querySelectorAll(".protocol")
+            .forEach(p => p.classList.remove("selected"));
+
+        protocol.classList.add("selected");
+
+    });
+
+});
+
+
+function generateIdea() {
+
+    const input =
+        document.getElementById("ideaInput").value;
+
+    const protocol =
+        document.querySelector(".protocol.selected").textContent;
+
+    const output =
+        document.getElementById("ideaOutput");
+
+    if(!input.trim()) {
+
+        output.innerHTML =
+            `<div class="generated">
+                SIGNAL ERROR: Enter a raw idea first.
+            </div>`;
+
+        return;
+    }
+
+    output.innerHTML = `
+
+        <div class="generated">
+
+            <div style="
+                color:#ff1493;
+                font-family:Orbitron;
+                font-size:9px;
+                letter-spacing:2px;">
+                SIGNAL GENERATED
+            </div>
+
+            <h2 style="margin:15px 0;">
+                ${escapeHTML(protocol)} // Human Frequency
+            </h2>
+
+            <p style="color:#8190a5;line-height:1.8;font-size:12px;">
+                Transform the idea of
+                <strong>"${escapeHTML(input)}"</strong>
+                into a digital experience where people can leave
+                short anonymous messages at physical locations around
+                a city.
+            </p>
+
+            <br>
+
+            <p style="color:#00eaff;font-size:11px;">
+                CORE LOOP →
+                Discover → Connect → Leave a signal → Find another human
+            </p>
+
+        </div>
+
+    `;
+}
+
+
+/* ================= MISSIONS ================= */
+
+let xp = 0;
+
+function addMission() {
+
+    const input =
+        document.getElementById("missionInput");
+
+    const text = input.value.trim();
+
+    if(!text) return;
+
+    const list =
+        document.getElementById("missionsList");
+
+    const empty = list.querySelector(".empty");
+
+    if(empty) empty.remove();
+
+    const mission =
+        document.createElement("div");
+
+    mission.className = "mission";
+
+    mission.innerHTML = `
+        <span>◉ ${escapeHTML(text)}</span>
+        <button onclick="completeMission(this)">
+            COMPLETE
+        </button>
+    `;
+
+    list.appendChild(mission);
+
+    input.value = "";
+}
+
+function completeMission(button) {
+
+    button.parentElement.remove();
+
+    xp += 100;
+
+    document.getElementById("xp").textContent =
+        String(xp).padStart(4,"0");
+
+    document.getElementById("xpBar").style.width =
+        Math.min((xp / 840) * 100,100) + "%";
+
+}
+
+
+/* ================= PROJECTS ================= */
+
+function addProject() {
+
+    const name =
+        prompt("Enter project name:");
+
+    if(!name) return;
+
+    const list =
+        document.getElementById("projectsList");
+
+    const card =
+        document.createElement("div");
+
+    card.className = "project-card";
+
+    card.innerHTML = `
+        <div style="
+            color:#ffe600;
+            font-family:Orbitron;
+            font-size:9px;
+            margin-bottom:15px;">
+            BUILD CHANNEL
+        </div>
+
+        <h3>${escapeHTML(name)}</h3>
+
+        <p>
+            New project signal initialized.
+            Define the next deployable state.
+        </p>
+    `;
+
+    list.appendChild(card);
+
+}
+
+
+/* ================= SHARED ROOMS ================= */
+
+function createRoom() {
+
+    const callsign =
+        document.getElementById("callsign").value;
+
+    const room =
+        document.getElementById("roomName").value;
+
+    const code =
+        Math.floor(100000 + Math.random() * 900000);
+
+    alert(
+        "ROOM OPENED\n\n" +
+        "CALLSIGN: " + callsign +
+        "\nROOM: " + room +
+        "\nCODE: " + code
+    );
+
+}
+
+function joinRoom() {
+
+    const code =
+        document.getElementById("roomCode").value;
+
+    if(!/^\d{6}$/.test(code)) {
+
+        alert("Enter a valid 6-digit room code.");
+
+        return;
+    }
+
+    alert(
+        "UPLINK ESTABLISHED\n\n" +
+        "Joining room: " + code
+    );
+
+}
+
+</script>
+
+</body>
 </html>
