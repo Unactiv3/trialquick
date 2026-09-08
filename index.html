@@ -234,6 +234,239 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(-30px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 8px var(--cyan); }
+    50% { box-shadow: 0 0 22px var(--cyan), 0 0 40px rgba(0,234,255,.15); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes scanline {
+    0% { top: -10%; }
+    100% { top: 110%; }
+}
+
+@keyframes borderGlow {
+    0%, 100% { border-color: rgba(0,234,255,.18); }
+    50% { border-color: rgba(0,234,255,.4); }
+}
+
+@keyframes textFlicker {
+    0%, 93%, 100% { opacity: 1; }
+    94% { opacity: .6; }
+    96% { opacity: 1; }
+    97% { opacity: .4; }
+}
+
+@keyframes dotPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.6); opacity: .5; }
+}
+
+.page.active {
+    animation: fade .3s ease;
+}
+
+.page.active h1 {
+    animation: slideInUp .4s ease both;
+}
+
+.page.active .eyebrow {
+    animation: slideInLeft .35s ease both;
+}
+
+.page.active .panel {
+    animation: slideInUp .45s ease both;
+}
+
+.page.active .panel:nth-child(2) { animation-delay: .08s; }
+.page.active .panel:nth-child(3) { animation-delay: .16s; }
+.page.active .panel:nth-child(4) { animation-delay: .24s; }
+
+.module {
+    animation: slideInUp .4s ease both;
+}
+.module:nth-child(1) { animation-delay: .05s; }
+.module:nth-child(2) { animation-delay: .1s; }
+.module:nth-child(3) { animation-delay: .15s; }
+.module:nth-child(4) { animation-delay: .2s; }
+.module:nth-child(5) { animation-delay: .25s; }
+
+.logo-icon {
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.dot {
+    animation: dotPulse 2s ease-in-out infinite;
+}
+
+/* ================= FLOATING NOTEPAD ================= */
+
+.floating-notepad {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 300px;
+    background: rgba(6,14,30,.96);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    z-index: 200;
+    box-shadow: 0 20px 60px -15px rgba(0,0,0,.7), 0 0 30px rgba(0,234,255,.08);
+    display: flex;
+    flex-direction: column;
+    transition: transform .25s ease, opacity .25s ease;
+}
+
+.floating-notepad.hidden {
+    transform: translateY(20px) scale(.95);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fn-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    cursor: grab;
+    user-select: none;
+}
+
+.fn-header:active { cursor: grabbing; }
+
+.fn-title {
+    color: var(--cyan);
+    font-family: Orbitron;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.fn-body {
+    flex: 1;
+    padding: 12px 16px;
+}
+
+.fn-body textarea {
+    width: 100%;
+    min-height: 120px;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: Inter;
+    font-size: 12px;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+}
+
+.fn-footer {
+    padding: 8px 16px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fn-footer small {
+    color: #4a5568;
+    font-size: 9px;
+    font-family: monospace;
+}
+
+.fn-toggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--cyan);
+    color: #001016;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 25px rgba(0,234,255,.35);
+    z-index: 201;
+    transition: transform .2s ease, box-shadow .2s ease;
+    animation: float 3s ease-in-out infinite;
+}
+
+.fn-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 35px rgba(0,234,255,.55);
+}
+
+/* ================= THEME PAGE ================= */
+
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 25px;
+}
+
+.theme-card {
+    padding: 28px 20px;
+    border-radius: 18px;
+    background: #091326;
+    border: 2px solid rgba(255,255,255,.06);
+    cursor: pointer;
+    transition: .3s;
+    text-align: center;
+}
+
+.theme-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--muted);
+}
+
+.theme-card.active {
+    border-color: var(--cyan);
+    box-shadow: 0 0 30px rgba(0,234,255,.15);
+}
+
+.theme-swatch {
+    width: 100%;
+    height: 60px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+}
+
+.theme-card h3 {
+    font-family: Orbitron;
+    font-size: 11px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.theme-card p {
+    font-size: 10px;
+    color: #68778d;
+    line-height: 1.5;
+}
+
+@media(max-width:700px) {
+    .theme-grid { grid-template-columns: repeat(2,1fr); }
+    .floating-notepad { width: 260px; bottom: 14px; right: 14px; }
+    .fn-toggle { bottom: 14px; right: 14px; }
+}
+
 .eyebrow {
     color: var(--cyan);
     font-family: Orbitron;
@@ -805,6 +1038,12 @@ textarea {
         <div class="dot"></div>
     </div>
 
+    <div class="nav-item" data-page="themes">
+        <div class="nav-icon">◐</div>
+        <span>Themes</span>
+        <div class="dot"></div>
+    </div>
+
     <div class="system-card">
         <div class="system-online">● SYSTEM ONLINE</div>
         <p>Local memory vault armed.</p>
@@ -825,7 +1064,10 @@ textarea {
 <main class="main">
 
 <header class="topbar">
-    <div class="live">LIVE UPLINK</div>
+    <div style="display:flex;align-items:center;gap:12px">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:16px;border-radius:8px;animation:pulseGlow 3s ease-in-out infinite">ϟ</div>
+        <div class="live">LIVE UPLINK</div>
+    </div>
     <div class="user-info">UTC 11:38:08 &nbsp; | &nbsp; GUEST // PILOT-07</div>
 </header>
 
@@ -1299,7 +1541,70 @@ Use this space like a private frequency: fragments, questions, diagrams in words
 
 </section>
 
+
+<!-- ================= THEMES ================= -->
+
+<section class="page" id="themes">
+
+    <div class="eyebrow">06 / CONFIGURE / SYSTEM THEMES</div>
+
+    <h1>THEME ENGINE</h1>
+
+    <p class="subtitle">
+        Choose a primary color signature. The entire OS adapts —
+        borders, glows, accents, all of it.
+    </p>
+
+    <div class="theme-grid">
+
+        <div class="theme-card active" onclick="setTheme('cyan')">
+            <div class="theme-swatch" style="background:linear-gradient(135deg,#030711,#001a22);border:1px solid #00eaff40"></div>
+            <h3 style="color:#00eaff">NEON CYAN</h3>
+            <p>Default signature. Electric ice. The grid's native frequency.</p>
+        </div>
+
+        <div class="theme-card" onclick="setTheme('pink')">
+            <div class="theme-swatch" style="background:linear-gradient(135deg,#030711,#1a0514);border:1px solid #ff149340"></div>
+            <h3 style="color:#ff1493">HOT PINK</h3>
+            <p>Crimson circuit. High voltage. For when the night runs hot.</p>
+        </div>
+
+        <div class="theme-card" onclick="setTheme('green')">
+            <div class="theme-swatch" style="background:linear-gradient(135deg,#030711,#041a04);border:1px solid #39ff1440"></div>
+            <h3 style="color:#39ff14">MATRIX GREEN</h3>
+            <p>Rain of code. Terminal glow. The old net never died.</p>
+        </div>
+
+        <div class="theme-card" onclick="setTheme('purple')">
+            <div class="theme-swatch" style="background:linear-gradient(135deg,#030711,#0f0520);border:1px solid #9b5cff40"></div>
+            <h3 style="color:#9b5cff">VOID PURPLE</h3>
+            <p>Deep space signal. Neon royalty. The quiet ones are dangerous.</p>
+        </div>
+
+    </div>
+
+</section>
+
 </main>
+
+
+<!-- ================= FLOATING NOTEPAD ================= -->
+
+<button class="fn-toggle" id="fnToggle" onclick="toggleNotepad()">📝</button>
+
+<div class="floating-notepad hidden" id="floatingNotepad">
+    <div class="fn-header" id="fnDrag">
+        <div class="fn-title">⚡ QUICK NOTE</div>
+        <button onclick="toggleNotepad()" style="background:none;border:none;color:#6d7c94;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div class="fn-body">
+        <textarea id="fnContent" placeholder="jot something before it vanishes..."></textarea>
+    </div>
+    <div class="fn-footer">
+        <small id="fnCount">0000 chars</small>
+        <small>autosaved</small>
+    </div>
+</div>
 
 
 <script>
@@ -1866,6 +2171,146 @@ function clearRoomCanvas() {
     if(!canvas || !roomCanvasCtx) return;
     roomCanvasCtx.clearRect(0, 0, canvas.width / devicePixelRatio, canvas.height / devicePixelRatio);
 }
+
+
+/* ================= THEME ENGINE ================= */
+
+const THEMES = {
+    cyan: {
+        cyan: "#00eaff", pink: "#ff1493", yellow: "#ffe600", green: "#39ff14",
+        purple: "#9b5cff", border: "rgba(0,234,255,.18)",
+        bgRadial1: "rgba(120,0,255,.08)", bgRadial2: "rgba(0,220,255,.06)"
+    },
+    pink: {
+        cyan: "#ff1493", pink: "#ff69b4", yellow: "#ffe600", green: "#39ff14",
+        purple: "#c471f5", border: "rgba(255,20,147,.18)",
+        bgRadial1: "rgba(255,20,147,.08)", bgRadial2: "rgba(200,0,100,.06)"
+    },
+    green: {
+        cyan: "#39ff14", pink: "#ff1493", yellow: "#ffe600", green: "#00ff88",
+        purple: "#9b5cff", border: "rgba(57,255,20,.18)",
+        bgRadial1: "rgba(0,255,100,.06)", bgRadial2: "rgba(57,255,20,.08)"
+    },
+    purple: {
+        cyan: "#9b5cff", pink: "#ff1493", yellow: "#ffe600", green: "#39ff14",
+        purple: "#c471f5", border: "rgba(155,92,255,.18)",
+        bgRadial1: "rgba(155,92,255,.1)", bgRadial2: "rgba(100,0,220,.06)"
+    }
+};
+
+function setTheme(name) {
+    const t = THEMES[name];
+    if(!t) return;
+
+    const r = document.documentElement;
+    r.style.setProperty("--cyan", t.cyan);
+    r.style.setProperty("--pink", t.pink);
+    r.style.setProperty("--green", t.green);
+    r.style.setProperty("--purple", t.purple);
+    r.style.setProperty("--yellow", t.yellow);
+    r.style.setProperty("--border", t.border);
+
+    document.body.style.background =
+        `radial-gradient(circle at 75% 10%, ${t.bgRadial1}, transparent 30%),` +
+        `radial-gradient(circle at 30% 40%, ${t.bgRadial2}, transparent 35%),` +
+        `var(--bg)`;
+
+    document.querySelectorAll(".theme-card").forEach(c => c.classList.remove("active"));
+    event.currentTarget.classList.add("active");
+
+    localStorage.setItem("nexusTheme", name);
+}
+
+(function loadTheme() {
+    const saved = localStorage.getItem("nexusTheme");
+    if(saved && THEMES[saved]) {
+        const t = THEMES[saved];
+        const r = document.documentElement;
+        r.style.setProperty("--cyan", t.cyan);
+        r.style.setProperty("--pink", t.pink);
+        r.style.setProperty("--green", t.green);
+        r.style.setProperty("--purple", t.purple);
+        r.style.setProperty("--yellow", t.yellow);
+        r.style.setProperty("--border", t.border);
+        document.body.style.background =
+            `radial-gradient(circle at 75% 10%, ${t.bgRadial1}, transparent 30%),` +
+            `radial-gradient(circle at 30% 40%, ${t.bgRadial2}, transparent 35%),` +
+            `var(--bg)`;
+    }
+})();
+
+
+/* ================= FLOATING NOTEPAD ================= */
+
+let fnOpen = false;
+
+function toggleNotepad() {
+    fnOpen = !fnOpen;
+    const pad = document.getElementById("floatingNotepad");
+    const toggle = document.getElementById("fnToggle");
+
+    if(fnOpen) {
+        pad.classList.remove("hidden");
+        toggle.style.display = "none";
+        document.getElementById("fnContent").focus();
+    } else {
+        pad.classList.add("hidden");
+        toggle.style.display = "flex";
+    }
+}
+
+(function initNotepad() {
+    const saved = localStorage.getItem("nexusQuickNote") || "";
+    const ta = document.getElementById("fnContent");
+    ta.value = saved;
+    updateFnCount();
+
+    ta.addEventListener("input", () => {
+        localStorage.setItem("nexusQuickNote", ta.value);
+        updateFnCount();
+    });
+})();
+
+function updateFnCount() {
+    const len = document.getElementById("fnContent").value.length;
+    document.getElementById("fnCount").textContent =
+        String(len).padStart(4, "0") + " chars";
+}
+
+/* ================= DRAG NOTEPAD ================= */
+
+(function initDrag() {
+    const drag = document.getElementById("fnDrag");
+    const pad = document.getElementById("floatingNotepad");
+    let startX, startY, origX, origY, dragging = false;
+
+    drag.addEventListener("mousedown", (e) => {
+        dragging = true;
+        const rect = pad.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = rect.left;
+        origY = rect.top;
+        pad.style.transition = "none";
+        pad.style.right = "auto";
+        pad.style.bottom = "auto";
+        pad.style.left = origX + "px";
+        pad.style.top = origY + "px";
+        e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+        if(!dragging) return;
+        pad.style.left = (origX + e.clientX - startX) + "px";
+        pad.style.top = (origY + e.clientY - startY) + "px";
+    });
+
+    document.addEventListener("mouseup", () => {
+        if(!dragging) return;
+        dragging = false;
+        pad.style.transition = "";
+    });
+})();
 
 </script>
 
