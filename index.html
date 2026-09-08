@@ -315,6 +315,57 @@ body {
 
 /* ================= FLOATING NOTEPAD ================= */
 
+.cyber-emoji-bar {
+    display: flex;
+    gap: 4px;
+    padding: 8px 16px;
+    border-top: 1px solid rgba(255,255,255,.05);
+    flex-wrap: wrap;
+}
+
+.cyber-emoji {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,.06);
+    background: rgba(255,255,255,.03);
+    cursor: pointer;
+    transition: .2s;
+    font-size: 15px;
+    position: relative;
+}
+
+.cyber-emoji:hover {
+    background: rgba(0,234,255,.1);
+    border-color: var(--cyan);
+    transform: scale(1.15);
+    box-shadow: 0 0 12px rgba(0,234,255,.2);
+}
+
+.cyber-emoji:active {
+    transform: scale(.9);
+}
+
+.cyber-emoji .emoji-tag {
+    position: absolute;
+    bottom: -14px;
+    font-size: 6px;
+    color: #4a5568;
+    font-family: monospace;
+    letter-spacing: .5px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: .2s;
+    pointer-events: none;
+}
+
+.cyber-emoji:hover .emoji-tag {
+    opacity: 1;
+}
+
 .floating-notepad {
     position: fixed;
     bottom: 24px;
@@ -1498,7 +1549,8 @@ Use this space like a private frequency: fragments, questions, diagrams in words
                 ♧ LIVE CHAT
             </div>
             <div id="roomChat" style="flex:1;padding:15px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;max-height:350px"></div>
-            <div style="padding:12px 22px 18px;display:flex;gap:10px">
+            <div style="padding:0 22px 6px;display:flex;gap:4px;flex-wrap:wrap" id="roomEmojiBar"></div>
+            <div style="padding:0 22px 18px;display:flex;gap:10px">
                 <input
                     id="roomChatInput"
                     placeholder="broadcast a signal..."
@@ -1600,6 +1652,7 @@ Use this space like a private frequency: fragments, questions, diagrams in words
     <div class="fn-body">
         <textarea id="fnContent" placeholder="jot something before it vanishes..."></textarea>
     </div>
+    <div class="cyber-emoji-bar" id="fnEmojiBar"></div>
     <div class="fn-footer">
         <small id="fnCount">0000 chars</small>
         <small>autosaved</small>
@@ -2311,6 +2364,64 @@ function updateFnCount() {
         pad.style.transition = "";
     });
 })();
+
+
+/* ================= CYBERPUNK EMOJIS ================= */
+
+const CYBER_EMOJIS = [
+    { char: "⚡", name: "voltage" },
+    { char: "🔌", name: "jack in" },
+    { char: "🧊", name: "ice" },
+    { char: "💀", name: "flatline" },
+    { char: "🤖", name: "borg" },
+    { char: "🗡️", name: "blade" },
+    { char: "🎯", name: "locked" },
+    { char: "🔥", name: "hot" },
+    { char: "👁️", name: "watching" },
+    { char: "📡", name: "signal" },
+    { char: "🧪", name: "chem" },
+    { char: "🧲", name: "attract" },
+    { char: "💎", name: "chrome" },
+    { char: "🐍", name: "snake" },
+    { char: "🛸", name: "ghost" },
+    { char: "☢️", name: "toxic" },
+    { char: "🩸", name: "blood" },
+    { char: "🌀", name: "glitch" },
+    { char: "🛡️", name: "firewall" },
+    { char: "⚙️", name: "gear" },
+    { char: "🧠", name: "neural" },
+    { char: "💜", name: "void" },
+    { char: "🟢", name: "online" },
+    { char: "🔴", name: "offgrid" },
+];
+
+function renderEmojiBar(containerId, targetId) {
+    const bar = document.getElementById(containerId);
+    if(!bar) return;
+
+    bar.innerHTML = CYBER_EMOJIS.map(e =>
+        `<div class="cyber-emoji" onclick="insertEmoji('${e.char}','${targetId}')" title="${e.name}">
+            ${e.char}
+            <span class="emoji-tag">${e.name}</span>
+        </div>`
+    ).join("");
+}
+
+function insertEmoji(char, targetId) {
+    const el = document.getElementById(targetId);
+    if(!el) return;
+
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const val = el.value;
+    el.value = val.slice(0, start) + char + val.slice(end);
+    el.selectionStart = el.selectionEnd = start + char.length;
+    el.focus();
+    el.dispatchEvent(new Event("input"));
+}
+
+renderEmojiBar("fnEmojiBar", "fnContent");
+renderEmojiBar("roomEmojiBar", "roomChatInput");
 
 </script>
 
