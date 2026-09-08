@@ -713,7 +713,8 @@ textarea {
 
     .notebook-layout,
     .idea-layout,
-    .room {
+    .room,
+    #room-active > div:last-child {
         grid-template-columns: 1fr;
     }
 
@@ -1148,7 +1149,7 @@ Use this space like a private frequency: fragments, questions, diagrams in words
 </section>
 
 
-<!-- ================= ROOMS ================= -->
+<!-- ================= ROOMS (LOBBY) ================= -->
 
 <section class="page" id="rooms">
 
@@ -1157,8 +1158,8 @@ Use this space like a private frequency: fragments, questions, diagrams in words
     <h1>NETRUNNER SHARED ROOMS</h1>
 
     <p class="subtitle">
-        Invite a crew into a backend-backed room. Presence, chat,
-        and the shared note refresh across every connected pilot.
+        Invite a crew into a room. Chat, draw, and share notes —
+        everything stays local to this browser session.
     </p>
 
     <div class="panel room">
@@ -1219,6 +1220,79 @@ Use this space like a private frequency: fragments, questions, diagrams in words
                 JOIN ↗
             </button>
 
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- ================= ROOM (ACTIVE) ================= -->
+
+<section class="page" id="room-active">
+
+    <div class="eyebrow">
+        ROOM / <span id="roomActiveCode"></span>
+        &nbsp;&nbsp;·&nbsp;&nbsp;
+        <span id="roomActiveName" style="color:var(--pink)"></span>
+    </div>
+
+    <h1 style="font-size:clamp(22px,3vw,36px)">
+        <span style="color:var(--cyan)">⚡</span> SHARED FREQUENCY
+    </h1>
+
+    <div style="display:flex;align-items:center;gap:15px;margin-bottom:25px;flex-wrap:wrap">
+        <div id="roomUsers" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        <button class="button pink" style="padding:8px 16px;font-size:8px" onclick="leaveRoom()">
+            ✕ LEAVE ROOM
+        </button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+        <!-- CHAT PANEL -->
+        <div class="panel" style="display:flex;flex-direction:column;min-height:450px">
+            <div class="panel-title" style="padding:20px 22px 0;margin-bottom:0">
+                ♧ LIVE CHAT
+            </div>
+            <div id="roomChat" style="flex:1;padding:15px 22px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;max-height:350px"></div>
+            <div style="padding:12px 22px 18px;display:flex;gap:10px">
+                <input
+                    id="roomChatInput"
+                    placeholder="broadcast a signal..."
+                    style="flex:1;padding:12px;border-radius:8px"
+                    onkeydown="if(event.key==='Enter')sendRoomChat()"
+                >
+                <button class="button" style="padding:10px 18px" onclick="sendRoomChat()">
+                    SEND
+                </button>
+            </div>
+        </div>
+
+        <!-- CANVAS PANEL -->
+        <div class="panel" style="display:flex;flex-direction:column;min-height:450px">
+            <div style="padding:20px 22px 0;display:flex;justify-content:space-between;align-items:center;margin-bottom:0">
+                <div class="panel-title" style="margin-bottom:0">▧ SHARED CANVAS</div>
+                <button
+                    style="background:none;border:1px solid var(--pink);color:var(--pink);padding:4px 12px;font-size:9px;cursor:pointer;border-radius:6px"
+                    onclick="clearRoomCanvas()">
+                    WIPE
+                </button>
+            </div>
+            <div style="padding:12px 22px 18px;flex:1;display:flex;flex-direction:column;gap:10px">
+                <canvas
+                    id="roomCanvas"
+                    style="flex:1;width:100%;min-height:320px;border-radius:12px;background:#020810;cursor:crosshair;border:1px solid rgba(0,234,255,.1)"
+                ></canvas>
+                <div style="display:flex;align-items:center;gap:10px">
+                    <div style="display:flex;gap:6px" id="roomColors"></div>
+                    <input
+                        type="range" min="1" max="12" value="3" id="roomBrushSize"
+                        style="margin-left:auto;width:100px;height:4px"
+                    >
+                    <span style="color:#6d7c94;font-size:10px" id="roomBrushLabel">3px</span>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -1523,43 +1597,274 @@ function addProject() {
 
 /* ================= SHARED ROOMS ================= */
 
+let currentRoom = null;
+let roomUsers = [];
+let roomInk = 0;
+let roomCanvasCtx = null;
+let roomDrawing = false;
+let botInterval = null;
+
+const ROOM_COLORS = ["#00eaff","#ff1493","#39ff14","#ffe600","#9b5cff"];
+
+const BOT_NAMES = ["GLITCH-13","CIPHER-09","NEON-42","ROGUE-77","PULSE-21","VEX-88"];
+const BOT_MESSAGES = [
+    "signal strong tonight...",
+    "anyone picking up this frequency?",
+    "the grid never sleeps",
+    "lost a good idea to the void last night",
+    "building something dangerous",
+    "who else sees the patterns?",
+    "running on caffeine and static",
+    "the city hums in code",
+    "catch you on the darknet",
+    "stay sharp, pilot"
+];
+
 function createRoom() {
 
     const callsign =
-        document.getElementById("callsign").value;
+        document.getElementById("callsign").value.trim() || "PILOT-07";
 
-    const room =
-        document.getElementById("roomName").value;
+    const roomName =
+        document.getElementById("roomName").value.trim() || "Unnamed Room";
 
     const code =
-        Math.floor(100000 + Math.random() * 900000);
+        String(Math.floor(100000 + Math.random() * 900000));
 
-    alert(
-        "ROOM OPENED\n\n" +
-        "CALLSIGN: " + callsign +
-        "\nROOM: " + room +
-        "\nCODE: " + code
-    );
-
+    enterRoom(code, roomName, callsign);
 }
 
 function joinRoom() {
 
     const code =
-        document.getElementById("roomCode").value;
+        document.getElementById("roomCode").value.trim();
 
     if(!/^\d{6}$/.test(code)) {
-
         alert("Enter a valid 6-digit room code.");
-
         return;
     }
 
-    alert(
-        "UPLINK ESTABLISHED\n\n" +
-        "Joining room: " + code
-    );
+    const callsign =
+        document.getElementById("callsign").value.trim() || "PILOT-07";
 
+    enterRoom(code, "Joined Room", callsign);
+}
+
+function enterRoom(code, name, callsign) {
+
+    currentRoom = { code, name, callsign };
+
+    document.getElementById("roomActiveCode").textContent = code;
+    document.getElementById("roomActiveName").textContent = name;
+
+    roomUsers = [
+        { name: callsign, color: "#00eaff", you: true }
+    ];
+
+    renderRoomUsers();
+    showPage("room-active");
+
+    document.getElementById("roomChat").innerHTML = "";
+    addSystemMessage("ROOM OPENED — CODE: " + code);
+    addSystemMessage(callsign + " has entered the frequency");
+
+    initRoomCanvas();
+    spawnBots();
+}
+
+function leaveRoom() {
+
+    if(botInterval) clearInterval(botInterval);
+    botInterval = null;
+    currentRoom = null;
+    roomUsers = [];
+
+    showPage("rooms");
+}
+
+function renderRoomUsers() {
+
+    const el = document.getElementById("roomUsers");
+    el.innerHTML = roomUsers.map(u =>
+        `<div style="
+            display:flex;align-items:center;gap:6px;
+            padding:5px 12px;border-radius:20px;
+            border:1px solid ${u.color}40;
+            background:${u.color}10;
+            font-size:10px;color:${u.color}">
+            <span style="width:6px;height:6px;border-radius:50%;background:${u.color};box-shadow:0 0 6px ${u.color}"></span>
+            ${escapeHTML(u.name)}${u.you ? ' (you)' : ''}
+        </div>`
+    ).join("");
+}
+
+function addSystemMessage(text) {
+
+    const chat = document.getElementById("roomChat");
+    if(!chat) return;
+
+    const div = document.createElement("div");
+    div.style.cssText = "text-align:center;color:#4a5568;font-size:10px;padding:6px 0;font-family:monospace;letter-spacing:1px";
+    div.textContent = "— " + text + " —";
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function addChatMessage(name, text, color) {
+
+    const chat = document.getElementById("roomChat");
+    if(!chat) return;
+
+    const isYou = roomUsers.find(u => u.name === name && u.you);
+
+    const div = document.createElement("div");
+    div.style.cssText = "display:flex;gap:10px;align-items:flex-start";
+
+    div.innerHTML = `
+        <div style="
+            width:28px;height:28px;border-radius:8px;
+            background:${color}15;border:1px solid ${color}40;
+            display:flex;align-items:center;justify-content:center;
+            font-size:11px;color:${color};flex-shrink:0;font-weight:700">
+            ${escapeHTML(name.charAt(0))}
+        </div>
+        <div style="min-width:0">
+            <div style="font-size:10px;color:${color};margin-bottom:3px;font-family:monospace;letter-spacing:1px">
+                ${escapeHTML(name)}${isYou ? ' ★' : ''}
+            </div>
+            <div style="color:#c8d4e3;font-size:12px;line-height:1.5;word-break:break-word">
+                ${escapeHTML(text)}
+            </div>
+        </div>
+    `;
+
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function sendRoomChat() {
+
+    const input = document.getElementById("roomChatInput");
+    const text = input.value.trim();
+    if(!text || !currentRoom) return;
+
+    const callsign = currentRoom.callsign;
+    addChatMessage(callsign, text, "#00eaff");
+    input.value = "";
+}
+
+function spawnBots() {
+
+    if(botInterval) clearInterval(botInterval);
+
+    const usedNames = new Set();
+
+    function addBot() {
+        if(!currentRoom) return;
+
+        const available = BOT_NAMES.filter(n => !usedNames.has(n) && !roomUsers.find(u => u.name === n));
+        if(available.length === 0 || roomUsers.length >= 5) return;
+
+        const name = available[Math.floor(Math.random() * available.length)];
+        const color = ROOM_COLORS[roomUsers.length % ROOM_COLORS.length];
+        usedNames.add(name);
+
+        roomUsers.push({ name, color, you: false });
+        renderRoomUsers();
+        addSystemMessage(name + " joined the frequency");
+    }
+
+    function botChat() {
+        if(!currentRoom) return;
+
+        const bots = roomUsers.filter(u => !u.you);
+        if(bots.length === 0) return;
+
+        const bot = bots[Math.floor(Math.random() * bots.length)];
+        const msg = BOT_MESSAGES[Math.floor(Math.random() * BOT_MESSAGES.length)];
+        addChatMessage(bot.name, msg, bot.color);
+    }
+
+    setTimeout(addBot, 2000);
+    setTimeout(addBot, 4500);
+    setTimeout(addBot, 8000);
+
+    botInterval = setInterval(() => {
+        if(Math.random() < 0.4) addBot();
+        if(Math.random() < 0.6) botChat();
+    }, 6000);
+}
+
+
+/* ================= ROOM CANVAS ================= */
+
+function initRoomCanvas() {
+
+    const canvas = document.getElementById("roomCanvas");
+    if(!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+
+    roomCanvasCtx = canvas.getContext("2d");
+    roomCanvasCtx.scale(devicePixelRatio, devicePixelRatio);
+
+    const colorsDiv = document.getElementById("roomColors");
+    colorsDiv.innerHTML = ROOM_COLORS.map((c, i) =>
+        `<button onclick="setRoomInk(${i})"
+            style="width:18px;height:18px;border-radius:50%;background:${c};border:2px solid ${i===0?'white':'transparent'};cursor:pointer"
+            id="roomColorBtn${i}"></button>`
+    ).join("");
+
+    document.getElementById("roomBrushSize").addEventListener("input", (e) => {
+        document.getElementById("roomBrushLabel").textContent = e.target.value + "px";
+    });
+
+    canvas.addEventListener("pointerdown", (e) => {
+        roomDrawing = true;
+        canvas.setPointerCapture(e.pointerId);
+        const pt = roomCanvasPoint(e, canvas);
+        roomCanvasCtx.beginPath();
+        roomCanvasCtx.moveTo(pt.x, pt.y);
+    });
+
+    canvas.addEventListener("pointermove", (e) => {
+        if(!roomDrawing || !roomCanvasCtx) return;
+        const pt = roomCanvasPoint(e, canvas);
+        const size = parseInt(document.getElementById("roomBrushSize").value);
+        const color = ROOM_COLORS[roomInk];
+        roomCanvasCtx.lineCap = "round";
+        roomCanvasCtx.lineJoin = "round";
+        roomCanvasCtx.lineWidth = size;
+        roomCanvasCtx.strokeStyle = color;
+        roomCanvasCtx.shadowBlur = 8;
+        roomCanvasCtx.shadowColor = color;
+        roomCanvasCtx.lineTo(pt.x, pt.y);
+        roomCanvasCtx.stroke();
+    });
+
+    canvas.addEventListener("pointerup", () => { roomDrawing = false; });
+    canvas.addEventListener("pointerleave", () => { roomDrawing = false; });
+}
+
+function roomCanvasPoint(e, canvas) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+}
+
+function setRoomInk(i) {
+    roomInk = i;
+    for(let j = 0; j < ROOM_COLORS.length; j++) {
+        const btn = document.getElementById("roomColorBtn" + j);
+        if(btn) btn.style.borderColor = j === i ? "white" : "transparent";
+    }
+}
+
+function clearRoomCanvas() {
+    const canvas = document.getElementById("roomCanvas");
+    if(!canvas || !roomCanvasCtx) return;
+    roomCanvasCtx.clearRect(0, 0, canvas.width / devicePixelRatio, canvas.height / devicePixelRatio);
 }
 
 </script>
